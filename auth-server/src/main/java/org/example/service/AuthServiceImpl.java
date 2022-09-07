@@ -12,6 +12,7 @@ import org.example.common.RestResponse;
 import org.example.utils.TokenUtils;
 import req.*;
 import resp.AuthenticateResp;
+import resp.UserResp;
 
 import java.util.List;
 
@@ -21,7 +22,7 @@ import java.util.List;
 public class AuthServiceImpl implements AuthService {
 
     @Override
-    public RestResponse<User> createUser(CreateUserReq req) {
+    public RestResponse<UserResp> createUser(CreateUserReq req) {
         if (!StrUtil.isAllNotEmpty(req.getPassWord(), req.getUsername())) {
             throw AuthErrors.requestParamError();
         }
@@ -36,11 +37,11 @@ public class AuthServiceImpl implements AuthService {
         user.setSalt(salt);
         user.setPassWord(encodePassword);
         User newUser = DataStore.addUser(user);
-        return RestResponse.ok(0, "create user success!", newUser);
+        return RestResponse.ok(0, "create user success!", BeanUtil.copyProperties(newUser, UserResp.class));
     }
 
     @Override
-    public RestResponse<User> deleteUser(DeleteUserReq req) {
+    public RestResponse<UserResp> deleteUser(DeleteUserReq req) {
         if (StrUtil.isEmptyIfStr(req.getUserId())) {
             throw AuthErrors.requestParamError();
         }
@@ -51,7 +52,7 @@ public class AuthServiceImpl implements AuthService {
         }
         Long delUserId = DataStore.delUser(req.getUserId());
         if (delUserId != null) {
-            return RestResponse.ok(0, "delete user success!", delUser);
+            return RestResponse.ok(0, "delete user success!", BeanUtil.copyProperties(delUser, UserResp.class));
         }
         return RestResponse.ok(0, "delete user fail!", null);
     }

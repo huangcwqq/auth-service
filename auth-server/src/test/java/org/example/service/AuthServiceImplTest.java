@@ -11,6 +11,7 @@ import org.example.common.RestResponse;
 import org.junit.jupiter.api.*;
 import req.*;
 import resp.AuthenticateResp;
+import resp.UserResp;
 
 import java.util.List;
 
@@ -148,7 +149,7 @@ class AuthServiceImplTest {
         CreateUserReq req = new CreateUserReq();
         req.setUsername(CREATE_USERNAME);
         req.setPassWord(CORRECT_PASSWORD);
-        final RestResponse<User> response = authService.createUser(req);
+        final RestResponse<UserResp> response = authService.createUser(req);
         Assertions.assertEquals(response.getCode(), 0);
         Assertions.assertEquals(response.getData().getUsername(), CREATE_USERNAME);
     }
@@ -180,7 +181,7 @@ class AuthServiceImplTest {
     void deleteExistsUser() {
         DeleteUserReq req = new DeleteUserReq();
         req.setUserId(1L);
-        final RestResponse<User> response = authService.deleteUser(req);
+        final RestResponse<UserResp> response = authService.deleteUser(req);
         Assertions.assertEquals(response.getCode(), 0);
         Assertions.assertEquals(response.getData().getId(), 1L);
     }

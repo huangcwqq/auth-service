@@ -6,6 +6,7 @@ import model.UserRoleRelation;
 import org.example.common.RestResponse;
 import req.*;
 import resp.AuthenticateResp;
+import resp.UserResp;
 
 import java.util.List;
 
@@ -16,7 +17,7 @@ public interface AuthService {
      * @param req create user request
      * @return new user
      */
-    RestResponse<User> createUser(CreateUserReq req);
+    RestResponse<UserResp> createUser(CreateUserReq req);
 
     /**
      * delete a exist user
@@ -24,7 +25,7 @@ public interface AuthService {
      * @param req delete user request
      * @return deleted user
      */
-    RestResponse<User> deleteUser(DeleteUserReq req);
+    RestResponse<UserResp> deleteUser(DeleteUserReq req);
 
     /**
      * create a new role
