@@ -8,17 +8,17 @@ import model.User;
 public class AuthenticateResp {
 
     // auth user info
-    User user;
+    UserResp userResp;
 
     // a special secret auth token
     String token;
 
-    public User getUser() {
-        return user;
+    public UserResp getUser() {
+        return userResp;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setUser(UserResp userResp) {
+        this.userResp = userResp;
     }
 
     public String getToken() {

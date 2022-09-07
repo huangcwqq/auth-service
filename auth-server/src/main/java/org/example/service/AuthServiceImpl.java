@@ -132,17 +132,17 @@ public class AuthServiceImpl implements AuthService {
         String token = TokenUtils.generateToken();
         DataStore.setTokenAndUser(token, userByUserName.getId());
         resp.setToken(token);
-        resp.setUser(userByUserName);
-        return RestResponse.ok(0, "user auth success", resp);
+        resp.setUser(BeanUtil.copyProperties(userByUserName, UserResp.class));
+        return RestResponse.ok(0, "user auth success!", resp);
     }
 
     @Override
-    public RestResponse<String> invalidate(String token) {
+    public RestResponse<Void> invalidate(String token) {
         if (StrUtil.isEmptyIfStr(token)) {
             throw AuthErrors.requestParamError();
         }
         DataStore.removeToken(token);
-        return RestResponse.ok(0, "token invalidate success!", token);
+        return RestResponse.ok(0, "token invalidate success!", null);
     }
 
     @Override

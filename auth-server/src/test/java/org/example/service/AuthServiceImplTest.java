@@ -311,7 +311,7 @@ class AuthServiceImplTest {
     void testInvalidate() {
         final User userByTokenBefore = DataStore.getUserByToken(CORRECT_TOKEN);
         Assertions.assertNotNull(userByTokenBefore);
-        final RestResponse<String> response = authService.invalidate(CORRECT_TOKEN);
+        final RestResponse<Void> response = authService.invalidate(CORRECT_TOKEN);
         final User userByTokenAfter = DataStore.getUserByToken(CORRECT_TOKEN);
         Assertions.assertEquals(response.getCode(), 0);
         Assertions.assertNull(userByTokenAfter);

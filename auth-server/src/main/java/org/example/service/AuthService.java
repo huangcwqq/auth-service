@@ -65,7 +65,7 @@ public interface AuthService {
      * @param token token
      * @return invalid token
      */
-    RestResponse<String> invalidate(String token);
+    RestResponse<Void> invalidate(String token);
 
     /**
      * Check if user belongs to a role
