@@ -39,14 +39,14 @@ public class PassWordUtils {
      * @return encrypted password
      */
     public static String encodePassword(String password, String salt) {
-        return Sha256.encrypt(password + "_" + salt);
+        String str = password + "_" + salt;
+        return Sha256.encrypt(str.getBytes(StandardCharsets.UTF_8));
     }
 
     /**
      * implement Sha256 algorithm
      */
     static class Sha256 {
-        //8个初始哈希值
         private static final int[] H = {
                 0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
                 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19};
@@ -60,11 +60,6 @@ public class PassWordUtils {
                 0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
                 0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
                 0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2};
-
-        public static String encrypt(String msg) {
-            byte[] bytes = msg.getBytes(StandardCharsets.UTF_8);
-            return encrypt(bytes);
-        }
 
         public static String encrypt(byte[] bytes) {
             int[] h = Arrays.copyOf(H, H.length);
@@ -115,7 +110,6 @@ public class PassWordUtils {
             }
             return w;
         }
-
 
         private static String fill_zero(String str, int n) {
             StringBuilder stringBuilder = new StringBuilder();
@@ -200,7 +194,6 @@ public class PassWordUtils {
             long wei = -1L;
             x = ((wei & (x & 0xffffffffL)) << (32 - n)) | (x & 0xffffffffL) >> n;
             return x;
-
         }
 
         private static long rightShift(int x, int n) {
