@@ -13,7 +13,6 @@ import org.example.utils.TokenUtils;
 import req.*;
 import resp.AuthenticateResp;
 
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 /**
@@ -26,21 +25,17 @@ public class AuthServiceImpl implements AuthService {
         if (!StrUtil.isAllNotEmpty(req.getPassWord(), req.getUsername())) {
             throw AuthErrors.requestParamError();
         }
+
         User user = BeanUtil.copyProperties(req, User.class);
         final User oldUser = DataStore.getUserByUserName(user.getUsername());
         if (oldUser != null) {
             throw AuthErrors.usernameRepeatError();
         }
-        User newUser;
-        try {
-            String salt = PassWordUtils.generateSalt();
-            String encodePassword = PassWordUtils.encodePassword(user.getPassWord(), salt);
-            user.setSalt(salt);
-            user.setPassWord(encodePassword);
-            newUser = DataStore.addUser(user);
-        } catch (Exception e) {
-            throw AuthErrors.createUserError();
-        }
+        String salt = PassWordUtils.generateSalt();
+        String encodePassword = PassWordUtils.encodePassword(user.getPassWord(), salt);
+        user.setSalt(salt);
+        user.setPassWord(encodePassword);
+        User newUser = DataStore.addUser(user);
         return RestResponse.ok(0, "create user success!", newUser);
     }
 
@@ -49,6 +44,7 @@ public class AuthServiceImpl implements AuthService {
         if (StrUtil.isEmptyIfStr(req.getUserId())) {
             throw AuthErrors.requestParamError();
         }
+
         final User delUser = DataStore.getUserById(req.getUserId());
         if (delUser == null) {
             throw AuthErrors.userNotExistError();
@@ -65,6 +61,7 @@ public class AuthServiceImpl implements AuthService {
         if (StrUtil.isEmpty(req.getName())) {
             throw AuthErrors.requestParamError();
         }
+
         Role role = BeanUtil.copyProperties(req, Role.class);
         final Role oldRole = DataStore.getRoleByName(role.getName());
         if (oldRole != null) {
@@ -79,6 +76,7 @@ public class AuthServiceImpl implements AuthService {
         if (StrUtil.isEmptyIfStr(req.getRoleId())) {
             throw AuthErrors.requestParamError();
         }
+
         final Role delRole = DataStore.getRoleById(req.getRoleId());
         if (delRole == null) {
             throw AuthErrors.roleNotExistError();
@@ -116,7 +114,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public RestResponse<AuthenticateResp> authenticate(AuthenticateReq req) throws NoSuchAlgorithmException {
+    public RestResponse<AuthenticateResp> authenticate(AuthenticateReq req) {
         if (StrUtil.isEmptyIfStr(req.getUsername()) || StrUtil.isEmptyIfStr(req.getPassWord())) {
             throw AuthErrors.requestParamError();
         }
@@ -131,7 +129,7 @@ public class AuthServiceImpl implements AuthService {
         }
         AuthenticateResp resp = new AuthenticateResp();
         String token = TokenUtils.generateToken();
-        DataStore.setTokenAndUser(token, userByUserName);
+        DataStore.setTokenAndUser(token, userByUserName.getId());
         resp.setToken(token);
         resp.setUser(userByUserName);
         return RestResponse.ok(0, "user auth success", resp);

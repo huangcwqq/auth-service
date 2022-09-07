@@ -12,7 +12,6 @@ public interface AuthErrors {
     int USERNAME_NOT_EXIST = 10006;
     int PASSWORD_INPUT_ERROR = 10007;
     int TOKEN_NOT_VALID = 10008;
-    int CREATE_USER_ERROR = 10009;
 
     static BusinessException requestParamError() {
         return new BusinessException(ERROR_REQUEST_PARAM, "error request param!");
@@ -44,9 +43,5 @@ public interface AuthErrors {
 
     static BusinessException tokenValidError() {
         return new BusinessException(TOKEN_NOT_VALID, "token is invalid");
-    }
-
-    static BusinessException createUserError() {
-        return new BusinessException(CREATE_USER_ERROR, "create user failed");
     }
 }

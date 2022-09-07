@@ -12,7 +12,6 @@ import org.junit.jupiter.api.*;
 import req.*;
 import resp.AuthenticateResp;
 
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 class AuthServiceImplTest {
@@ -24,12 +23,12 @@ class AuthServiceImplTest {
     final static String NOT_EXIST_USERNAME = "username_not_exist";
     final static String CORRECT_PASSWORD = "123456";
     final static String INCORRECT_PASSWORD = "654321";
-     final static String EXIST_ROLE_NAME = "exist_role";
-     final static String EXIST_ROLE_NAME2 = "exist_role2";
-     final static String EXIST_ROLE_NAME3 = "exist_role3";
-     final static String CREATE_ROLE_NAME = "create_role";
-     final static String CORRECT_TOKEN = "20220905001_1_123";
-     final static String INCORRECT_TOKEN = "20220905001_1_321";
+    final static String EXIST_ROLE_NAME = "exist_role";
+    final static String EXIST_ROLE_NAME2 = "exist_role2";
+    final static String EXIST_ROLE_NAME3 = "exist_role3";
+    final static String CREATE_ROLE_NAME = "create_role";
+    final static String CORRECT_TOKEN = "20220905001_1_123";
+    final static String INCORRECT_TOKEN = "20220905001_1_321";
 
     @BeforeEach
     void setUp() {
@@ -42,8 +41,8 @@ class AuthServiceImplTest {
         try {
             final String salt = PassWordUtils.generateSalt();
             user.setSalt(salt);
-            user.setPassWord(PassWordUtils.encodePassword(CORRECT_PASSWORD,salt));
-        }catch (Exception ignored){
+            user.setPassWord(PassWordUtils.encodePassword(CORRECT_PASSWORD, salt));
+        } catch (Exception ignored) {
         }
         DataStore.addUser(user);
         // init two roles exist_role exist_role2
@@ -71,7 +70,7 @@ class AuthServiceImplTest {
         DataStore.addUserRoleRelation(relation);
         DataStore.addUserRoleRelation(relation2);
         // Build relationships between token and user
-        DataStore.setTokenAndUser(CORRECT_TOKEN,user);
+        DataStore.setTokenAndUser(CORRECT_TOKEN, user.getId());
     }
 
     @AfterEach
@@ -81,13 +80,77 @@ class AuthServiceImplTest {
     }
 
     @Test
+    void methodParamCheck() {
+        try {
+            final CreateUserReq createUserReq = new CreateUserReq();
+            authService.createUser(createUserReq);
+        } catch (BusinessException e) {
+            Assertions.assertEquals(AuthErrors.ERROR_REQUEST_PARAM, e.getCode());
+        }
+
+        try {
+            final DeleteUserReq deleteUserReq = new DeleteUserReq();
+            authService.deleteUser(deleteUserReq);
+        } catch (BusinessException e) {
+            Assertions.assertEquals(AuthErrors.ERROR_REQUEST_PARAM, e.getCode());
+        }
+
+        try {
+            final CreateRoleReq createRoleReq = new CreateRoleReq();
+            authService.createRole(createRoleReq);
+        } catch (BusinessException e) {
+            Assertions.assertEquals(AuthErrors.ERROR_REQUEST_PARAM, e.getCode());
+        }
+
+        try {
+            final DeleteRoleReq deleteRoleReq = new DeleteRoleReq();
+            authService.deleteRole(deleteRoleReq);
+        } catch (BusinessException e) {
+            Assertions.assertEquals(AuthErrors.ERROR_REQUEST_PARAM, e.getCode());
+        }
+
+        try {
+            AddRoleToUserReq addRoleToUserReq = new AddRoleToUserReq();
+            authService.addRoleToUser(addRoleToUserReq);
+        } catch (BusinessException e) {
+            Assertions.assertEquals(AuthErrors.ERROR_REQUEST_PARAM, e.getCode());
+        }
+
+        try {
+            AuthenticateReq authenticateReq = new AuthenticateReq();
+            authService.authenticate(authenticateReq);
+        } catch (BusinessException e) {
+            Assertions.assertEquals(AuthErrors.ERROR_REQUEST_PARAM, e.getCode());
+        }
+
+        try {
+            authService.invalidate("");
+        } catch (BusinessException e) {
+            Assertions.assertEquals(AuthErrors.ERROR_REQUEST_PARAM, e.getCode());
+        }
+
+        try {
+            CheckRoleReq checkRoleReq = new CheckRoleReq();
+            authService.checkRole(checkRoleReq);
+        } catch (BusinessException e) {
+            Assertions.assertEquals(AuthErrors.ERROR_REQUEST_PARAM, e.getCode());
+        }
+
+        try {
+            authService.listAllRoles("");
+        } catch (BusinessException e) {
+            Assertions.assertEquals(AuthErrors.ERROR_REQUEST_PARAM, e.getCode());
+        }
+    }
+
+    @Test
     void createNewUser() {
         CreateUserReq req = new CreateUserReq();
         req.setUsername(CREATE_USERNAME);
         req.setPassWord(CORRECT_PASSWORD);
         final RestResponse<User> response = authService.createUser(req);
-        Assertions.assertEquals(response.getCode(),0);
-        Assertions.assertEquals(response.getData().getUsername(),CREATE_USERNAME);
+        Assertions.assertEquals(response.getCode(), 0);
+        Assertions.assertEquals(response.getData().getUsername(), CREATE_USERNAME);
     }
 
     @Test
@@ -95,9 +158,9 @@ class AuthServiceImplTest {
         CreateUserReq req = new CreateUserReq();
         req.setUsername(EXIST_USERNAME);
         req.setPassWord(CORRECT_PASSWORD);
-        try{
+        try {
             authService.createUser(req);
-        }catch (BusinessException e){
+        } catch (BusinessException e) {
             Assertions.assertEquals(e.getCode(), AuthErrors.USERNAME_ALREADY_EXIST);
         }
     }
@@ -106,9 +169,9 @@ class AuthServiceImplTest {
     void deleteNotExistsUser() {
         DeleteUserReq req = new DeleteUserReq();
         req.setUserId(9999L);
-        try{
+        try {
             authService.deleteUser(req);
-        }catch (BusinessException e){
+        } catch (BusinessException e) {
             Assertions.assertEquals(e.getCode(), AuthErrors.USER_DOES_NO_EXIST);
         }
     }
@@ -118,8 +181,8 @@ class AuthServiceImplTest {
         DeleteUserReq req = new DeleteUserReq();
         req.setUserId(1L);
         final RestResponse<User> response = authService.deleteUser(req);
-        Assertions.assertEquals(response.getCode(),0);
-        Assertions.assertEquals(response.getData().getId(),1L);
+        Assertions.assertEquals(response.getCode(), 0);
+        Assertions.assertEquals(response.getData().getId(), 1L);
     }
 
     @Test
@@ -127,8 +190,8 @@ class AuthServiceImplTest {
         CreateRoleReq req = new CreateRoleReq();
         req.setName(CREATE_ROLE_NAME);
         final RestResponse<Role> response = authService.createRole(req);
-        Assertions.assertEquals(response.getCode(),0);
-        Assertions.assertEquals(response.getData().getName(),CREATE_ROLE_NAME);
+        Assertions.assertEquals(response.getCode(), 0);
+        Assertions.assertEquals(response.getData().getName(), CREATE_ROLE_NAME);
     }
 
     @Test
@@ -137,8 +200,8 @@ class AuthServiceImplTest {
         req.setName(EXIST_ROLE_NAME);
         try {
             authService.createRole(req);
-        }catch (BusinessException e){
-            Assertions.assertEquals(e.getCode(),AuthErrors.ROLE_NAME_ALREADY_EXIST);
+        } catch (BusinessException e) {
+            Assertions.assertEquals(e.getCode(), AuthErrors.ROLE_NAME_ALREADY_EXIST);
         }
     }
 
@@ -148,8 +211,8 @@ class AuthServiceImplTest {
         req.setRoleId(9999L);
         try {
             authService.deleteRole(req);
-        }catch (BusinessException e){
-            Assertions.assertEquals(e.getCode(),AuthErrors.ROLE_DOES_NO_EXIST);
+        } catch (BusinessException e) {
+            Assertions.assertEquals(e.getCode(), AuthErrors.ROLE_DOES_NO_EXIST);
         }
     }
 
@@ -158,8 +221,8 @@ class AuthServiceImplTest {
         DeleteRoleReq req = new DeleteRoleReq();
         req.setRoleId(1L);
         final RestResponse<Role> response = authService.deleteRole(req);
-        Assertions.assertEquals(response.getCode(),0);
-        Assertions.assertEquals(response.getData().getId(),1L);
+        Assertions.assertEquals(response.getCode(), 0);
+        Assertions.assertEquals(response.getData().getId(), 1L);
     }
 
     @Test
@@ -167,10 +230,10 @@ class AuthServiceImplTest {
         AddRoleToUserReq req = new AddRoleToUserReq();
         req.setRoleId(9999L);
         req.setUserId(1L);
-        try{
+        try {
             authService.addRoleToUser(req);
-        }catch (BusinessException e){
-            Assertions.assertEquals(e.getCode(),AuthErrors.ROLE_DOES_NO_EXIST);
+        } catch (BusinessException e) {
+            Assertions.assertEquals(e.getCode(), AuthErrors.ROLE_DOES_NO_EXIST);
         }
     }
 
@@ -179,10 +242,10 @@ class AuthServiceImplTest {
         AddRoleToUserReq req = new AddRoleToUserReq();
         req.setRoleId(1L);
         req.setUserId(9999L);
-        try{
-           authService.addRoleToUser(req);
-        }catch (BusinessException e){
-            Assertions.assertEquals(e.getCode(),AuthErrors.USER_DOES_NO_EXIST);
+        try {
+            authService.addRoleToUser(req);
+        } catch (BusinessException e) {
+            Assertions.assertEquals(e.getCode(), AuthErrors.USER_DOES_NO_EXIST);
         }
     }
 
@@ -192,9 +255,9 @@ class AuthServiceImplTest {
         req.setRoleId(1L);
         req.setUserId(1L);
         final RestResponse<UserRoleRelation> response = authService.addRoleToUser(req);
-        Assertions.assertEquals(response.getCode(),0);
-        Assertions.assertEquals(response.getData().getUserId(),1L);
-        Assertions.assertEquals(response.getData().getRoleId(),1L);
+        Assertions.assertEquals(response.getCode(), 0);
+        Assertions.assertEquals(response.getData().getUserId(), 1L);
+        Assertions.assertEquals(response.getData().getRoleId(), 1L);
     }
 
     @Test
@@ -203,43 +266,43 @@ class AuthServiceImplTest {
         req.setRoleId(3L);
         req.setUserId(1L);
         final RestResponse<UserRoleRelation> response = authService.addRoleToUser(req);
-        Assertions.assertEquals(response.getCode(),0);
-        Assertions.assertEquals(response.getData().getUserId(),1L);
-        Assertions.assertEquals(response.getData().getRoleId(),3L);
+        Assertions.assertEquals(response.getCode(), 0);
+        Assertions.assertEquals(response.getData().getUserId(), 1L);
+        Assertions.assertEquals(response.getData().getRoleId(), 3L);
     }
 
     @Test
-    void authenticateErrorUserName() throws NoSuchAlgorithmException {
+    void authenticateErrorUserName() {
         AuthenticateReq req = new AuthenticateReq();
         req.setUsername(NOT_EXIST_USERNAME);
         req.setPassWord(CORRECT_PASSWORD);
         try {
             authService.authenticate(req);
-        }catch (BusinessException e){
-            Assertions.assertEquals(e.getCode(),AuthErrors.USERNAME_NOT_EXIST);
+        } catch (BusinessException e) {
+            Assertions.assertEquals(e.getCode(), AuthErrors.USERNAME_NOT_EXIST);
         }
     }
 
     @Test
-    void authenticateErrorPassword() throws NoSuchAlgorithmException {
+    void authenticateErrorPassword() {
         AuthenticateReq req = new AuthenticateReq();
         req.setUsername(EXIST_USERNAME);
         req.setPassWord(INCORRECT_PASSWORD);
         try {
             authService.authenticate(req);
-        }catch (BusinessException e){
-            Assertions.assertEquals(e.getCode(),AuthErrors.PASSWORD_INPUT_ERROR);
+        } catch (BusinessException e) {
+            Assertions.assertEquals(e.getCode(), AuthErrors.PASSWORD_INPUT_ERROR);
         }
     }
 
     @Test
-    void authenticateSuccess() throws NoSuchAlgorithmException {
+    void authenticateSuccess() {
         AuthenticateReq req = new AuthenticateReq();
         req.setUsername(EXIST_USERNAME);
         req.setPassWord(CORRECT_PASSWORD);
         final RestResponse<AuthenticateResp> response = authService.authenticate(req);
-        Assertions.assertEquals(response.getCode(),0);
-        Assertions.assertEquals(response.getData().getUser().getUsername(),EXIST_USERNAME);
+        Assertions.assertEquals(response.getCode(), 0);
+        Assertions.assertEquals(response.getData().getUser().getUsername(), EXIST_USERNAME);
         Assertions.assertNotNull(response.getData().getToken());
     }
 
@@ -249,17 +312,17 @@ class AuthServiceImplTest {
         Assertions.assertNotNull(userByTokenBefore);
         final RestResponse<String> response = authService.invalidate(CORRECT_TOKEN);
         final User userByTokenAfter = DataStore.getUserByToken(CORRECT_TOKEN);
-        Assertions.assertEquals(response.getCode(),0);
+        Assertions.assertEquals(response.getCode(), 0);
         Assertions.assertNull(userByTokenAfter);
     }
 
     @Test
-    void testCheckRole(){
+    void testCheckRole() {
         CheckRoleReq req = new CheckRoleReq();
         req.setToken(CORRECT_TOKEN);
         req.setRoleId(9999L);
         final RestResponse<Boolean> response = authService.checkRole(req);
-        Assertions.assertEquals(response.getCode(),0);
+        Assertions.assertEquals(response.getCode(), 0);
         Assertions.assertFalse(response.getData());
 
         try {
@@ -267,32 +330,32 @@ class AuthServiceImplTest {
             invalidReq.setToken(INCORRECT_TOKEN);
             invalidReq.setRoleId(1L);
             authService.checkRole(invalidReq);
-        }catch (BusinessException e){
-            Assertions.assertEquals(e.getCode(),AuthErrors.TOKEN_NOT_VALID);
+        } catch (BusinessException e) {
+            Assertions.assertEquals(e.getCode(), AuthErrors.TOKEN_NOT_VALID);
         }
 
         CheckRoleReq correctReq = new CheckRoleReq();
         correctReq.setToken(CORRECT_TOKEN);
         correctReq.setRoleId(1L);
         final RestResponse<Boolean> correctResponse = authService.checkRole(correctReq);
-        Assertions.assertEquals(correctResponse.getCode(),0);
+        Assertions.assertEquals(correctResponse.getCode(), 0);
         Assertions.assertTrue(correctResponse.getData());
     }
 
     @Test
     void listAllRolesByInvalidToken() {
         Assertions.assertThrows(BusinessException.class, () -> authService.listAllRoles(INCORRECT_TOKEN));
-        try{
+        try {
             authService.listAllRoles(INCORRECT_TOKEN);
-        }catch (BusinessException e){
-            Assertions.assertEquals(e.getCode(),AuthErrors.TOKEN_NOT_VALID);
+        } catch (BusinessException e) {
+            Assertions.assertEquals(e.getCode(), AuthErrors.TOKEN_NOT_VALID);
         }
     }
 
     @Test
     void listAllRolesValidToken() {
         final RestResponse<List<Role>> response = authService.listAllRoles(CORRECT_TOKEN);
-        Assertions.assertEquals(response.getCode(),0L);
+        Assertions.assertEquals(response.getCode(), 0L);
         Assertions.assertTrue(response.getData().size() > 0);
     }
 }
